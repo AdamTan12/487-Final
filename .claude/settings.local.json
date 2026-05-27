@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake --version)",
+      "Bash(pkg-config --modversion opencv4)",
+      "Read(//opt/homebrew/Cellar/opencv/4.13.0_10/**)",
+      "Bash(chmod +x *)",
+      "Bash(bash scripts/build.sh)",
+      "Bash(/Users/raymondtsai/Desktop/487-Final/build/bin/gesture_recognition --help)",
+      "Bash(git *)"
+    ]
+  }
+}

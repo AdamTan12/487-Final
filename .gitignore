@@ -1,0 +1,53 @@
+# Build output
+build/
+out/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+*.o
+*.obj
+*.exe
+*.dll
+*.dylib
+*.so
+
+# Datasets (large; not committed)
+data/hagrid_raw/
+data/hagrid_processed/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Training artifacts
+training/runs/
+training/checkpoints/
+training/logs/
+*.tfevents.*
+
+# IDE / editor
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+*.swp
+*~
+
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Test outputs (results.csv lives here at runtime)
+tests/results.csv
+tests/test_images/

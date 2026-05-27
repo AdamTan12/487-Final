@@ -1,0 +1,33 @@
+# Normalize line endings
+*           text=auto
+
+# Force LF for shell scripts and POSIX configs
+*.sh        text eol=lf
+*.py        text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.cmake     text eol=lf
+CMakeLists.txt text eol=lf
+
+# Force CRLF for Windows batch files
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# C/C++ sources are LF (works fine in Visual Studio)
+*.h         text eol=lf
+*.hpp       text eol=lf
+*.c         text eol=lf
+*.cpp       text eol=lf
+
+# Binary assets — never touch
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.bmp       binary
+*.gif       binary
+*.onnx      binary
+*.pth       binary
+*.pt        binary
+*.zip       binary
+*.tar       binary
+*.gz        binary
