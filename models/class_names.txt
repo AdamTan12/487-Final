@@ -1,7 +1,6 @@
 like
 dislike
 peace
-mute
 stop
 gun
 ok
