@@ -21,6 +21,9 @@ constexpr int         kVMinCeil   = 255;
 constexpr double      kDepthStep  = 1.0;
 constexpr double      kDepthFloor = 1.0;
 constexpr double      kDepthCeil  = 100.0;
+constexpr int         kBpStep     = 5;
+constexpr int         kBpFloor    = 0;
+constexpr int         kBpCeil     = 255;
 
 void printControls() {
     std::cout << "controls:\n"
@@ -31,7 +34,8 @@ void printControls() {
               << "  f     toggle face mask-out\n"
               << "  s     toggle hand-likeness shape scoring\n"
               << "  a     toggle adaptive skin model (learned from face)\n"
-              << "  [/]   lower/raise convexity-defect depth threshold\n";
+              << "  [/]   lower/raise convexity-defect depth threshold\n"
+              << "  ,/.   lower/raise adaptive skin threshold (lower = picks up more hand)\n";
 }
 
 }  // namespace
@@ -128,6 +132,16 @@ int main() {
                 kDepthFloor, classifier.defect_depth_min - kDepthStep);
             std::cout << "defect_depth_min = "
                       << classifier.defect_depth_min << "\n";
+        } else if (key == '.' || key == '>') {
+            detector.backproj_threshold = std::min(
+                kBpCeil, detector.backproj_threshold + kBpStep);
+            std::cout << "backproj_threshold = "
+                      << detector.backproj_threshold << "\n";
+        } else if (key == ',' || key == '<') {
+            detector.backproj_threshold = std::max(
+                kBpFloor, detector.backproj_threshold - kBpStep);
+            std::cout << "backproj_threshold = "
+                      << detector.backproj_threshold << "\n";
         }
     }
 

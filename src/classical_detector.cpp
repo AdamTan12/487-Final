@@ -33,7 +33,8 @@ constexpr int    kHueBins              = 16;
 constexpr int    kSatBins              = 16;
 constexpr double kHistLearnRate        = 0.30;  // EMA weight on new samples
 constexpr int    kMinTrainedFrames     = 3;     // wait this many face samples before trusting
-constexpr int    kBackProjThreshold    = 50;    // 0..255; lower = more permissive
+// kBackProjThreshold moved to ClassicalDetector::backproj_threshold so it can
+// be adjusted live from the demo with , and .
 constexpr int    kBackProjBlur         = 5;     // odd, smooths the likelihood map
 constexpr double kFacePatchInsetFrac   = 0.25;  // shrink face box this much per side for sampling
 constexpr double kFacePatchVerticalShift = 0.05; // nudge patch up to skew toward forehead+cheeks
@@ -162,7 +163,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
             cv::GaussianBlur(back_proj, back_proj,
                              cv::Size(kBackProjBlur, kBackProjBlur), 0);
         }
-        cv::threshold(back_proj, mask, kBackProjThreshold, 255, cv::THRESH_BINARY);
+        cv::threshold(back_proj, mask, backproj_threshold, 255, cv::THRESH_BINARY);
 
         // Belt-and-suspenders: drop pixels that are clearly too dark to be
         // skin (the histogram only models hue+sat).
