@@ -1,7 +1,7 @@
 #pragma once
 
 /// @file config.h
-/// @brief Runtime configuration shared across pipeline modules.
+/// @brief Runtime configuration for the live webcam pipeline.
 
 #include <opencv2/core.hpp>
 
@@ -9,23 +9,10 @@
 
 namespace gr {
 
-enum class DetectorType {
-    Classical,  ///< HSV + contours + morphology (primary)
-    Onnx,       ///< YOLOv10n (HaGRID pretrained) via cv::dnn (fallback)
-};
-
-enum class AppMode {
-    Live,
-    Eval,
-    Bench,
-};
-
 /// All settings the pipeline needs. Populated from CLI args + defaults.
 /// Preprocessing fields (input_size / mean / std / scale) MUST match the
-/// Python training pipeline byte-for-byte. See models/preprocessing.txt.
+/// HaGRID training pipeline byte-for-byte. See models/preprocessing.txt.
 struct AppConfig {
-    AppMode      mode               = AppMode::Live;
-    DetectorType detector            = DetectorType::Classical;
     bool         debug               = false;
 
     std::string  model_path          = "models/gesture_classifier.onnx";
@@ -34,16 +21,12 @@ struct AppConfig {
 
     int          camera_index        = 0;
 
+    // HaGRID ResNet18 preprocessing -- see models/preprocessing.txt.
     cv::Size     input_size          = cv::Size(224, 224);
-    cv::Scalar   mean                = cv::Scalar(0.485, 0.456, 0.406);
-    cv::Scalar   std                 = cv::Scalar(0.229, 0.224, 0.225);
+    cv::Scalar   mean                = cv::Scalar(0.54,  0.499, 0.474);
+    cv::Scalar   std                 = cv::Scalar(0.234, 0.235, 0.231);
     float        scale               = 1.0f / 255.0f;
-
-    int          smoothing_window    = 5;
-
-    // Mode-specific
-    std::string  eval_dir            = "tests/test_images";
-    std::string  eval_output_csv     = "tests/results.csv";
+    cv::Scalar   pad_color           = cv::Scalar(144, 144, 144);
 };
 
 /// Parse argv into an AppConfig. On `--help` or parse error, prints usage

@@ -12,4 +12,4 @@ if [[ ! -x "${BIN}" ]]; then
 fi
 
 cd "${ROOT_DIR}"
-"${BIN}" --mode live --model models/gesture_classifier.onnx "$@"
+"${BIN}" --model models/gesture_classifier.onnx "$@"

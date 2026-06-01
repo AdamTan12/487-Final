@@ -7,7 +7,7 @@ target_include_directories(gesture_recognition
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${OpenCV_INCLUDE_DIRS})
 
-target_link_libraries(gesture_recognition PRIVATE ${OpenCV_LIBS})
+target_link_libraries(gesture_recognition PRIVATE ${OpenCV_LIBS} onnxruntime::onnxruntime)
 
 if(MSVC)
     target_compile_options(gesture_recognition PRIVATE /W4 /permissive-)

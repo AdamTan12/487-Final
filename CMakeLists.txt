@@ -20,4 +20,7 @@ find_package(OpenCV 4 REQUIRED)
 message(STATUS "OpenCV version: ${OpenCV_VERSION}")
 message(STATUS "OpenCV include: ${OpenCV_INCLUDE_DIRS}")
 
+find_package(onnxruntime REQUIRED)
+message(STATUS "onnxruntime found")
+
 add_subdirectory(app)

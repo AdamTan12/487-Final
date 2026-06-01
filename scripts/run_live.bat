@@ -8,5 +8,5 @@ if not exist %BIN% (
     exit /b 1
 )
 
-%BIN% --mode live --model models/gesture_classifier.onnx %*
+%BIN% --model models/gesture_classifier.onnx %*
 endlocal
