@@ -21,6 +21,11 @@ public:
 
     /// Classify a hand contour. Safe on small / degenerate contours.
     ClassificationResult classify(const std::vector<cv::Point>& contour);
+
+    /// Minimum convexity-defect depth (px) to count as a finger gap.
+    /// Raise to reject thumb/knuckle wrinkles; lower to be more sensitive.
+    /// Live-tunable via [ and ] in the demo.
+    double defect_depth_min = 20.0;
 };
 
 }  // namespace gd

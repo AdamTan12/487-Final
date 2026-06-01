@@ -16,6 +16,9 @@ constexpr int         kEscKey     = 27;
 constexpr int         kVMinStep   = 5;
 constexpr int         kVMinFloor  = 0;
 constexpr int         kVMinCeil   = 255;
+constexpr double      kDepthStep  = 1.0;
+constexpr double      kDepthFloor = 1.0;
+constexpr double      kDepthCeil  = 100.0;
 
 void printControls() {
     std::cout << "controls:\n"
@@ -25,7 +28,8 @@ void printControls() {
               << "  -/_   lower HSV v_min\n"
               << "  f     toggle face mask-out\n"
               << "  s     toggle hand-likeness shape scoring\n"
-              << "  a     toggle adaptive skin model (learned from face)\n";
+              << "  a     toggle adaptive skin model (learned from face)\n"
+              << "  [/]   lower/raise convexity-defect depth threshold\n";
 }
 
 }  // namespace
@@ -103,6 +107,16 @@ int main() {
             detector.use_adaptive_skin = !detector.use_adaptive_skin;
             std::cout << "adaptive_skin = "
                       << (detector.use_adaptive_skin ? "on" : "off") << "\n";
+        } else if (key == ']' || key == '}') {
+            classifier.defect_depth_min = std::min(
+                kDepthCeil, classifier.defect_depth_min + kDepthStep);
+            std::cout << "defect_depth_min = "
+                      << classifier.defect_depth_min << "\n";
+        } else if (key == '[' || key == '{') {
+            classifier.defect_depth_min = std::max(
+                kDepthFloor, classifier.defect_depth_min - kDepthStep);
+            std::cout << "defect_depth_min = "
+                      << classifier.defect_depth_min << "\n";
         }
     }
 
