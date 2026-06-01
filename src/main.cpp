@@ -81,13 +81,13 @@ int main() {
         prev_tick = now;
         const double fps = (dt > 0.0) ? 1.0 / dt : 0.0;
 
-        // Debug HUD (CV-side, owned here).
+        // our debug HUD
         renderer.draw(frame, det, smoothed.gesture, finger_count, fps,
                       detector.use_face_mask,
                       detector.use_shape_score,
                       detector.use_adaptive_skin);
 
-        // Hand the per-frame decision to the display layer (teammate-owned).
+        // hand off to the display side
         gd::GestureEvent ev;
         ev.gesture      = smoothed.gesture;
         ev.stable       = smoothed.stable;

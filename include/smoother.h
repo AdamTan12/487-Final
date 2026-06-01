@@ -6,20 +6,18 @@
 
 namespace gd {
 
-/// Result of one smoothing step.
 struct SmoothResult {
     Gesture gesture = Gesture::None;
-    bool    stable  = false;  ///< true once the winner holds a strong majority
+    bool    stable  = false;  // winner holds a clear majority
 };
 
-/// Sliding-window majority-vote smoother over discrete gestures. Eliminates
-/// single-frame flicker without adding noticeable latency, and reports whether
-/// the current winner is stable enough to display.
+// Majority vote over the last N gestures, to stop single frames from making
+// the output jump around.
 class Smoother {
 public:
     explicit Smoother(std::size_t window = 8);
 
-    /// Push a new gesture, return the smoothed winner + stability flag.
+    // Feed one gesture per frame; get back the winner and whether it's settled.
     SmoothResult update(Gesture gesture);
 
     void reset();

@@ -11,46 +11,41 @@ struct DetectionResult {
     bool                   found = false;
     std::vector<cv::Point> contour;
     cv::Rect               bbox;
-    cv::Mat                mask;            ///< Final binary mask after all processing.
-    std::vector<cv::Rect>  faces;           ///< Cascade hits this frame (debug overlay).
-    bool                   adaptive_active = false;  ///< True if back-projection was used.
-    int                    trained_frames  = 0;      ///< Number of face samples accumulated.
+    cv::Mat                mask;            // final binary mask
+    std::vector<cv::Rect>  faces;           // this frame's face hits (for debug)
+    bool                   adaptive_active = false;  // back-projection in use?
+    int                    trained_frames  = 0;      // face samples seen so far
 };
 
-/// HSV skin detector with three runtime-toggleable add-ons:
-///   * Face cascade (`f`) — zero detected faces in the mask before contours.
-///   * Shape scoring (`s`) — pick by `area * (1 - solidity)^k`, not pure area.
-///   * Adaptive skin model (`a`) — learn the user's H-S distribution from
-///     the face patch and use `calcBackProject` for a calibrated mask.
-///
-/// The face cascade runs every Nth frame and the result is cached, which
-/// keeps FPS up.
+// HSV skin detector with three toggles:
+//   f - cut out detected faces before finding contours
+//   s - rank contours by area * (1 - solidity)^k instead of plain area
+//   a - learn skin colour from the face and back-project (calibrated mask)
+// The face cascade only runs every few frames and the result is cached.
 class ClassicalDetector {
 public:
     ClassicalDetector();
 
     DetectionResult detect(const cv::Mat& frame);
 
-    // --- runtime knobs ----------------------------------------------------
+    // runtime knobs
     int  v_min             = 60;
     bool use_face_mask     = true;
     bool use_shape_score   = true;
     bool use_adaptive_skin = true;
 
-    /// Back-projection likelihood cutoff (0..255) for the adaptive skin model.
-    /// Lower = more permissive (picks up more of the hand, but also more
-    /// background). Live-tunable via , and . in the demo.
+    // Back-projection cutoff (0..255). Lower picks up more hand and more
+    // background. Tune live with , and .
     int  backproj_threshold = 35;
 
 private:
     cv::CascadeClassifier face_cascade_;
 
-    // Cached cascade state so detection doesn't have to run every frame.
+    // cached so the cascade needn't run every frame
     std::vector<cv::Rect> cached_faces_;
     int                   detect_calls_ = 0;
 
-    // Adaptive skin model.
-    cv::Mat skin_hist_;       ///< 2D H-S histogram, EMA-updated from face patches.
+    cv::Mat skin_hist_;       // H-S histogram, EMA-updated from the face
     int     trained_frames_ = 0;
 };
 

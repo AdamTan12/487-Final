@@ -7,12 +7,12 @@
 
 namespace gd {
 
-/// HUD overlay: bbox + contour + label tag + status panel + FPS.
+// Debug HUD: bbox, contour, label, status panel, FPS.
 class Renderer {
 public:
     Renderer() = default;
 
-    /// Draw the per-frame overlay in place on `frame`.
+    // Draws the overlay onto `frame` in place.
     void draw(cv::Mat&               frame,
               const DetectionResult& det,
               Gesture                smoothed_gesture,
@@ -22,8 +22,7 @@ public:
               bool                   shape_score_on,
               bool                   adaptive_on);
 
-    /// Returns `frame` side-by-side with the (BGR-promoted) skin mask.
-    /// Useful for the `d` (debug) toggle in main.
+    // Frame next to the skin mask, for the `d` toggle in main.
     cv::Mat debugView(const cv::Mat&         frame,
                       const DetectionResult& det);
 };

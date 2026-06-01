@@ -40,10 +40,8 @@ struct EmojiAsset {
     const char* path;
 };
 
-constexpr std::array<EmojiAsset, 7> kAssets = {{
+constexpr std::array<EmojiAsset, 5> kAssets = {{
     {Gesture::Fist,    "assets/emoji/fist.png"},
-    {Gesture::Like,    "assets/emoji/like.png"},
-    {Gesture::Dislike, "assets/emoji/dislike.png"},
     {Gesture::Peace,   "assets/emoji/peace.png"},
     {Gesture::Three,   "assets/emoji/three.png"},
     {Gesture::Four,    "assets/emoji/four.png"},

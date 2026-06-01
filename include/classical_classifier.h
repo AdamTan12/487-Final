@@ -13,19 +13,17 @@ struct ClassificationResult {
     int     finger_count = 0;
 };
 
-/// Classical "classifier": counts extended fingers using the convexity-defect
-/// trick (Bradski / OpenCV tutorial), then maps the count to a label name.
-/// No training data, no model file — pure geometry.
+// Counts extended fingers from the hand contour via convexity defects, then
+// maps the count to a Gesture. No model, just geometry.
 class ClassicalClassifier {
 public:
     ClassicalClassifier() = default;
 
-    /// Classify a hand contour. Safe on small / degenerate contours.
+    // Safe to call on tiny or degenerate contours.
     ClassificationResult classify(const std::vector<cv::Point>& contour);
 
-    /// Minimum convexity-defect depth (px) to count as a finger gap.
-    /// Raise to reject thumb/knuckle wrinkles; lower to be more sensitive.
-    /// Live-tunable via [ and ] in the demo.
+    // Min defect depth (px) for a gap to count as one between fingers.
+    // Higher rejects knuckle/thumb wrinkles. Tune live with [ and ].
     double defect_depth_min = 20.0;
 };
 

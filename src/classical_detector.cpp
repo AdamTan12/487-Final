@@ -53,7 +53,7 @@ const std::array<const char*, 6> kCascadePaths = {
     "haarcascade_frontalface_default.xml",
 };
 
-/// Largest of `rects` by area, or an empty Rect if the vector is empty.
+// biggest rect by area, or empty if there are none
 cv::Rect largestFace(const std::vector<cv::Rect>& rects) {
     cv::Rect best;
     int      best_area = 0;
@@ -66,8 +66,8 @@ cv::Rect largestFace(const std::vector<cv::Rect>& rects) {
     return best;
 }
 
-/// Central patch of a face box — biased upward to favor forehead + cheeks
-/// over jawline (which often picks up shadow / facial hair).
+// middle of the face box, nudged up toward forehead/cheeks and away from the
+// jawline (shadows, facial hair). This is what we sample skin colour from.
 cv::Rect facePatch(const cv::Rect& face, const cv::Size& frame_size) {
     const int dx = static_cast<int>(face.width  * kFacePatchInsetFrac);
     const int dy = static_cast<int>(face.height * kFacePatchInsetFrac);
@@ -102,7 +102,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
     cv::Mat hsv;
     cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
 
-    // ----- 1. Face cascade (every Nth frame, cached) -----------------------
+    // face cascade, every Nth frame, otherwise reuse the last result
     ++detect_calls_;
     const bool can_use_cascade = use_face_mask && !face_cascade_.empty();
     const bool ran_cascade     = can_use_cascade && (detect_calls_ % kCascadeEveryN == 0);
@@ -118,7 +118,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
     }
     result.faces = cached_faces_;
 
-    // ----- 2. Update adaptive skin histogram from face patch ---------------
+    // fold this frame's face colour into the running skin histogram
     if (use_adaptive_skin && ran_cascade && !cached_faces_.empty()) {
         const cv::Rect face  = largestFace(cached_faces_);
         const cv::Rect patch = facePatch(face, frame.size());
@@ -145,7 +145,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
     }
     result.trained_frames = trained_frames_;
 
-    // ----- 3. Build skin mask: adaptive if trained, else static HSV --------
+    // build the skin mask: back-projection once trained, static HSV until then
     cv::Mat mask;
     const bool adaptive_active = use_adaptive_skin &&
                                  !skin_hist_.empty() &&
@@ -165,8 +165,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
         }
         cv::threshold(back_proj, mask, backproj_threshold, 255, cv::THRESH_BINARY);
 
-        // Belt-and-suspenders: drop pixels that are clearly too dark to be
-        // skin (the histogram only models hue+sat).
+        // the histogram only knows hue+sat, so also drop anything too dark
         cv::Mat value_ok;
         cv::inRange(hsv,
                     cv::Scalar(0, 0, v_min),
@@ -180,7 +179,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
                     mask);
     }
 
-    // ----- 4. Cleanup ------------------------------------------------------
+    // clean up the mask
     const cv::Mat kernel = cv::getStructuringElement(
         cv::MORPH_ELLIPSE, cv::Size(kMorphKernelSize, kMorphKernelSize));
     cv::morphologyEx(mask, mask, cv::MORPH_OPEN,  kernel);
@@ -190,7 +189,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
                          cv::Size(kBlurKernelSize, kBlurKernelSize), 0);
     }
 
-    // ----- 5. Zero out face regions ----------------------------------------
+    // erase the face(s) so they can't be mistaken for a hand
     if (use_face_mask) {
         for (const auto& f : cached_faces_) {
             const int pad_x = static_cast<int>(f.width  * kFacePadFraction);
@@ -205,7 +204,7 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
         }
     }
 
-    // ----- 6. Pick the best hand candidate ---------------------------------
+    // pick the best hand candidate
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 

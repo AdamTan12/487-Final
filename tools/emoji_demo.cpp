@@ -10,8 +10,7 @@
 //  and the matching emoji_demo target in CMakeLists.txt -- no other change.
 //
 //  Controls:
-//    1  Fist     2  Like     3  Dislike   4  Peace
-//    5  Three    6  Four     7  Palm
+//    1  Fist     2  Peace    3  Three     4  Four     5  Palm
 //    0  clear (gesture = None, stable = false)
 //    ESC quit
 // =============================================================================
@@ -33,12 +32,10 @@ constexpr int         kEsc    = 27;
 gd::Gesture gestureFromKey(int key) {
     switch (key) {
         case '1': return gd::Gesture::Fist;
-        case '2': return gd::Gesture::Like;
-        case '3': return gd::Gesture::Dislike;
-        case '4': return gd::Gesture::Peace;
-        case '5': return gd::Gesture::Three;
-        case '6': return gd::Gesture::Four;
-        case '7': return gd::Gesture::Palm;
+        case '2': return gd::Gesture::Peace;
+        case '3': return gd::Gesture::Three;
+        case '4': return gd::Gesture::Four;
+        case '5': return gd::Gesture::Palm;
         default:  return gd::Gesture::None;
     }
 }
@@ -53,7 +50,7 @@ int main() {
     }
 
     cv::namedWindow(kWindow, cv::WINDOW_AUTOSIZE);
-    std::cout << "keys: 1 fist  2 like  3 dislike  4 peace  5 three  6 four  7 palm"
+    std::cout << "keys: 1 fist  2 peace  3 three  4 four  5 palm"
               << "  0 clear  ESC quit\n";
 
     gd::GestureEvent ev;  // starts as None, stable=false
@@ -87,7 +84,7 @@ int main() {
         if (k == '0') {
             ev = {};
             std::cout << "cleared\n";
-        } else if (k >= '1' && k <= '7') {
+        } else if (k >= '1' && k <= '5') {
             ev.gesture      = gestureFromKey(k);
             ev.stable       = true;
             ev.finger_count = 0;

@@ -4,9 +4,8 @@
 
 namespace gd {
 
-/// Thin RAII wrapper around cv::VideoCapture. Selects an OS-native backend
-/// (AVFoundation on macOS, DirectShow on Windows) and mirrors frames so the
-/// preview feels like a mirror.
+// Wraps cv::VideoCapture: picks a per-OS backend and mirrors frames so the
+// preview reads like a mirror.
 class Camera {
 public:
     explicit Camera(int index = 0);
@@ -15,8 +14,7 @@ public:
     Camera(const Camera&)            = delete;
     Camera& operator=(const Camera&) = delete;
 
-    /// Grab + mirror the next frame. Returns false on failure; `out` is
-    /// left untouched in that case.
+    // Next frame, mirrored. False on failure (out left untouched).
     bool readFrame(cv::Mat& out);
 
     bool isOpen() const;

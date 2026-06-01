@@ -7,11 +7,11 @@ namespace gd {
 namespace {
 constexpr std::size_t kDefaultWindow = 8;
 
-/// Fraction of the window the winner must occupy to be considered "stable".
+// How much of the window the winner needs before we call it stable.
 constexpr double kStableFraction = 0.6;
 
-/// Number of values in the Gesture enum (None + the rest). Keep in sync.
-constexpr std::size_t kGestureCount = 8;
+// Size of the Gesture enum. Keep in sync if you add gestures.
+constexpr std::size_t kGestureCount = 6;
 }  // namespace
 
 Smoother::Smoother(std::size_t window)

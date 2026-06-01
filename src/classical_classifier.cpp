@@ -10,45 +10,36 @@ namespace gd {
 
 namespace {
 
-// --- tunable thresholds -----------------------------------------------------
-// kDefectDepthMin moved to ClassicalClassifier::defect_depth_min so it can be
-// adjusted live from the demo with [ and ].
-constexpr double kDefectAngleMax = 3.14159265358979 / 2.0;  ///< 90° in radians
+// (defect depth lives on the class so it can be tuned live; see the header.)
+constexpr double kDefectAngleMax = 3.14159265358979 / 2.0;  // 90 degrees
 
-/// Reject defects whose start/end ("fingertips") aren't measurably farther
-/// from the contour centroid than the far point. This kills wrist/forearm
-/// defects (which have the opposite geometry — far is the most distal
-/// point, not start/end). Set > 1.0 for a stricter margin.
+// A real finger gap has its fingertips farther from the hand centre than the
+// valley between them. Wrist/forearm defects are the other way round, so this
+// throws them out. Bump above 1.0 to be stricter.
 constexpr double kFingertipMarginFactor = 1.0;
 
 constexpr std::size_t kMinHullPoints = 3;
-// ---------------------------------------------------------------------------
 
-/// Maps a finger count (0-5) to a gesture. NOTE: the convexity-defect trick
-/// reliably counts fingers but cannot tell apart same-count gestures on its
-/// own. Two cases need a secondary feature (Raymond's finetuning work):
-///   * count 1 -> Like vs Dislike: split by thumb direction relative to the
-///     contour centroid (up = Like, down = Dislike). Currently both report
-///     Like as a placeholder.
-/// All other counts map 1:1.
+// finger count -> gesture. Defects count the gaps *between* fingers, so a
+// single finger never registers (min non-zero count is 2). Count 1 can't
+// happen and just maps to None.
 constexpr std::array<Gesture, 6> kGestureByFingerCount = {
     Gesture::Fist,   // 0
-    Gesture::Like,   // 1  (Dislike disambiguation TODO via centroid orientation)
+    Gesture::None,   // 1  (can't happen)
     Gesture::Peace,  // 2
     Gesture::Three,  // 3
     Gesture::Four,   // 4
     Gesture::Palm,   // 5
 };
 
-/// Angle at point `far` formed by the triangle (`start`, `end`, `far`),
-/// using the law of cosines on the side lengths.
+// Angle at `far` in the triangle (start, end, far), via law of cosines.
 double angleAtFar(const cv::Point& start, const cv::Point& end, const cv::Point& far) {
     const double a = cv::norm(start - end);
     const double b = cv::norm(far   - start);
     const double c = cv::norm(far   - end);
     const double denom = 2.0 * b * c;
     if (denom <= 0.0) {
-        return std::numeric_limits<double>::infinity();  // skip degenerate
+        return std::numeric_limits<double>::infinity();  // degenerate, skip it
     }
     double cos_angle = (b * b + c * c - a * a) / denom;
     if (cos_angle >  1.0) cos_angle =  1.0;
@@ -59,7 +50,7 @@ double angleAtFar(const cv::Point& start, const cv::Point& end, const cv::Point&
 Gesture gestureFor(int finger_count) {
     if (finger_count < 0) return Gesture::None;
     if (finger_count >= static_cast<int>(kGestureByFingerCount.size())) {
-        return Gesture::Palm;   // anything beyond our table reads as an open hand
+        return Gesture::Palm;   // more than 5 -> treat as open hand
     }
     return kGestureByFingerCount[static_cast<std::size_t>(finger_count)];
 }
@@ -83,15 +74,14 @@ ClassificationResult ClassicalClassifier::classify(
     try {
         cv::convexityDefects(contour, hull_indices, defects);
     } catch (const cv::Exception&) {
-        // convexityDefects throws if the contour isn't cleanly
-        // convex-decomposable. Treat that as "no usable hand this frame".
+        // convexityDefects throws on contours it can't decompose; bail.
         return result;
     }
     if (defects.empty()) {
         return result;
     }
 
-    // Contour centroid via image moments — used to reject wrist-style defects.
+    // Centroid (image moments), needed for the wrist-defect check below.
     const cv::Moments m = cv::moments(contour);
     if (m.m00 <= 0.0) {
         return result;
@@ -113,8 +103,8 @@ ClassificationResult ClassicalClassifier::classify(
             continue;
         }
 
-        // Wrist-defect rejection: both "fingertips" must be farther from
-        // the centroid than the valley's far point.
+        // Both fingertips have to sit farther out than the valley, or it's
+        // a wrist gap, not a finger gap.
         const double d_start_c = cv::norm(cv::Point2f(start) - centroid);
         const double d_end_c   = cv::norm(cv::Point2f(end)   - centroid);
         const double d_far_c   = cv::norm(cv::Point2f(far)   - centroid);

@@ -9,7 +9,6 @@ namespace gd {
 
 namespace {
 
-// --- tunable rendering constants -------------------------------------------
 const cv::Scalar kBboxColor    (0, 255, 0);     // green
 const cv::Scalar kContourColor (0, 140, 255);   // orange
 const cv::Scalar kTextColor    (255, 255, 255); // white
@@ -26,8 +25,7 @@ constexpr int    kPanelLineGap  = 22;
 constexpr int    kPanelWidth    = 300;
 constexpr int    kPanelHeight   = 175;
 
-const cv::Scalar kFaceBoxColor (0, 0, 255);    // red — drawn in debug only
-// ---------------------------------------------------------------------------
+const cv::Scalar kFaceBoxColor (0, 0, 255);    // red, debug view only
 
 std::string fmt1(double v) {
     std::ostringstream oss;
@@ -58,7 +56,7 @@ void Renderer::draw(cv::Mat&               frame,
                     kFont, kLabelScale, kBboxColor, kLabelThick);
     }
 
-    // Top-left status panel
+    // status panel, top-left
     cv::Rect panel(kPanelPadX, kPanelPadY, kPanelWidth, kPanelHeight);
     panel &= cv::Rect(0, 0, frame.cols, frame.rows);
     if (panel.area() > 0) {
@@ -104,8 +102,7 @@ cv::Mat Renderer::debugView(const cv::Mat& frame, const DetectionResult& det) {
     if (mask_bgr.size() != frame.size()) {
         cv::resize(mask_bgr, mask_bgr, frame.size());
     }
-    // Draw the cascade's face boxes in red on the left pane so you can see
-    // exactly what's being zeroed out of the mask.
+    // red boxes on the left show what's getting cut out of the mask.
     cv::Mat left = frame.clone();
     for (const auto& f : det.faces) {
         cv::rectangle(left, f, kFaceBoxColor, 2);
