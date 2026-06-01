@@ -15,6 +15,7 @@ enum class Gesture {
     Three,    // 3 fingers
     Four,     // 4 fingers
     Palm,     // 5 fingers
+    Ok,       // thumb+index loop (detected as a hole, not by count)
 };
 
 // One frame's result, handed across to draw_gesture().
@@ -34,6 +35,7 @@ inline const char* gesture_name(Gesture g) {
         case Gesture::Three:   return "three";
         case Gesture::Four:    return "four";
         case Gesture::Palm:    return "palm";
+        case Gesture::Ok:      return "ok";
     }
     return "none";
 }

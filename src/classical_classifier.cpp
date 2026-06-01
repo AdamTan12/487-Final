@@ -58,8 +58,13 @@ Gesture gestureFor(int finger_count) {
 }  // namespace
 
 ClassificationResult ClassicalClassifier::classify(
-        const std::vector<cv::Point>& contour) {
+        const std::vector<cv::Point>& contour, bool has_hole) {
     ClassificationResult result;
+    // A hole (thumb-index loop) is decisive, so this holds even on the
+    // early-return paths below.
+    if (has_hole) {
+        result.gesture = Gesture::Ok;
+    }
     if (contour.size() < kMinHullPoints) {
         return result;
     }
@@ -115,7 +120,8 @@ ClassificationResult ClassicalClassifier::classify(
     }
 
     result.finger_count = (gaps > 0) ? gaps + 1 : 0;
-    result.gesture      = gestureFor(result.finger_count);
+    result.gesture      = has_hole ? Gesture::Ok
+                                   : gestureFor(result.finger_count);
     return result;
 }
 

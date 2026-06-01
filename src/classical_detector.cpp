@@ -42,6 +42,11 @@ constexpr double kFacePatchVerticalShift = 0.05; // nudge patch up to skew towar
 // --- shape scoring ---------------------------------------------------------
 constexpr double kSolidityPower    = 1.5;
 constexpr double kSolidityCap      = 0.97;
+
+// --- OK-sign hole ----------------------------------------------------------
+// A hole at least this fraction of the hand's area counts as the thumb-index
+// loop. Big enough to ignore mask speckle, small enough to catch a real loop.
+constexpr double kMinHoleAreaFrac  = 0.03;
 // ---------------------------------------------------------------------------
 
 const std::array<const char*, 6> kCascadePaths = {
@@ -204,13 +209,18 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
         }
     }
 
-    // pick the best hand candidate
+    // pick the best hand candidate. CCOMP gives us holes too (for the OK sign).
     std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    std::vector<cv::Vec4i>              hierarchy;
+    cv::findContours(mask, contours, hierarchy,
+                     cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
-    const std::vector<cv::Point>* best       = nullptr;
-    double                        best_score = -1.0;
-    for (const auto& c : contours) {
+    int    best_idx   = -1;
+    double best_score = -1.0;
+    for (int i = 0; i < static_cast<int>(contours.size()); ++i) {
+        if (hierarchy[i][3] != -1) continue;   // skip holes; only outer contours
+
+        const auto&  c    = contours[static_cast<std::size_t>(i)];
         const double area = cv::contourArea(c);
         if (area < kMinContourArea) continue;
 
@@ -227,17 +237,30 @@ DetectionResult ClassicalDetector::detect(const cv::Mat& frame) {
 
         if (score > best_score) {
             best_score = score;
-            best       = &c;
+            best_idx   = i;
         }
     }
 
     result.mask = mask;
-    if (best == nullptr) {
+    if (best_idx < 0) {
         return result;
     }
+
+    // look for a hole belonging to this hand that's a big enough slice of it
+    const auto&  hand      = contours[static_cast<std::size_t>(best_idx)];
+    const double hand_area = cv::contourArea(hand);
+    for (int i = 0; i < static_cast<int>(contours.size()); ++i) {
+        if (hierarchy[i][3] != best_idx) continue;   // not a hole of this hand
+        if (cv::contourArea(contours[static_cast<std::size_t>(i)]) >
+            hand_area * kMinHoleAreaFrac) {
+            result.has_hole = true;
+            break;
+        }
+    }
+
     result.found   = true;
-    result.contour = *best;
-    result.bbox    = cv::boundingRect(*best);
+    result.contour = hand;
+    result.bbox    = cv::boundingRect(hand);
     return result;
 }
 

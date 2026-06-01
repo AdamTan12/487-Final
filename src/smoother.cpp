@@ -11,7 +11,7 @@ constexpr std::size_t kDefaultWindow = 8;
 constexpr double kStableFraction = 0.6;
 
 // Size of the Gesture enum. Keep in sync if you add gestures.
-constexpr std::size_t kGestureCount = 6;
+constexpr std::size_t kGestureCount = 7;
 }  // namespace
 
 Smoother::Smoother(std::size_t window)

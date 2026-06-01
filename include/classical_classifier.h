@@ -19,8 +19,10 @@ class ClassicalClassifier {
 public:
     ClassicalClassifier() = default;
 
-    // Safe to call on tiny or degenerate contours.
-    ClassificationResult classify(const std::vector<cv::Point>& contour);
+    // Safe to call on tiny or degenerate contours. `has_hole` (an enclosed
+    // gap, e.g. the OK loop) overrides the finger count when set.
+    ClassificationResult classify(const std::vector<cv::Point>& contour,
+                                  bool has_hole = false);
 
     // Min defect depth (px) for a gap to count as one between fingers.
     // Higher rejects knuckle/thumb wrinkles. Tune live with [ and ].

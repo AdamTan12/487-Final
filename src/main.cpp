@@ -70,7 +70,7 @@ int main() {
         gd::Gesture raw_gesture  = gd::Gesture::None;
         int         finger_count = 0;
         if (det.found) {
-            const auto cls = classifier.classify(det.contour);
+            const auto cls = classifier.classify(det.contour, det.has_hole);
             raw_gesture  = cls.gesture;
             finger_count = cls.finger_count;
         }

@@ -15,6 +15,7 @@ struct DetectionResult {
     std::vector<cv::Rect>  faces;           // this frame's face hits (for debug)
     bool                   adaptive_active = false;  // back-projection in use?
     int                    trained_frames  = 0;      // face samples seen so far
+    bool                   has_hole = false;         // enclosed gap, e.g. OK loop
 };
 
 // HSV skin detector with three toggles:
