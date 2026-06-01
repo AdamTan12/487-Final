@@ -60,11 +60,6 @@ Gesture gestureFor(int finger_count) {
 ClassificationResult ClassicalClassifier::classify(
         const std::vector<cv::Point>& contour, bool has_hole) {
     ClassificationResult result;
-    // A hole (thumb-index loop) is decisive, so this holds even on the
-    // early-return paths below.
-    if (has_hole) {
-        result.gesture = Gesture::Ok;
-    }
     if (contour.size() < kMinHullPoints) {
         return result;
     }
@@ -119,9 +114,26 @@ ClassificationResult ClassicalClassifier::classify(
         ++gaps;
     }
 
-    result.finger_count = (gaps > 0) ? gaps + 1 : 0;
-    result.gesture      = has_hole ? Gesture::Ok
-                                   : gestureFor(result.finger_count);
+    const int fingers = (gaps > 0) ? gaps + 1 : 0;
+    result.finger_count = fingers;
+
+    // Solidity = how much of its convex hull the contour fills. A fist is
+    // compact (high); an open hand leaves gaps (low). Used both to gate the OK
+    // sign (a fist's shadow can look like a hole) and to split fist from palm.
+    std::vector<cv::Point> hull_pts;
+    cv::convexHull(contour, hull_pts);
+    const double hull_area = cv::contourArea(hull_pts);
+    const double area      = cv::contourArea(contour);
+    const double solidity  = (hull_area > 0.0) ? area / hull_area : 1.0;
+    const bool   open_hand = solidity < open_solidity_max;
+
+    if (has_hole && open_hand) {
+        result.gesture = Gesture::Ok;     // a loop, and the hand isn't a fist
+    } else if (fingers >= 2) {
+        result.gesture = gestureFor(fingers);
+    } else {
+        result.gesture = open_hand ? Gesture::Palm : Gesture::Fist;
+    }
     return result;
 }
 

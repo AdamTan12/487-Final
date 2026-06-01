@@ -27,6 +27,10 @@ public:
     // Min defect depth (px) for a gap to count as one between fingers.
     // Higher rejects knuckle/thumb wrinkles. Tune live with [ and ].
     double defect_depth_min = 20.0;
+
+    // When the finger count is ambiguous (0-1), split fist from open palm by
+    // solidity: below this is an open hand, above it is a fist. Tune with o/p.
+    double open_solidity_max = 0.85;
 };
 
 }  // namespace gd

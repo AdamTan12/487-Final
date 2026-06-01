@@ -24,6 +24,9 @@ constexpr double      kDepthCeil  = 100.0;
 constexpr int         kBpStep     = 5;
 constexpr int         kBpFloor    = 0;
 constexpr int         kBpCeil     = 255;
+constexpr double      kSolStep    = 0.02;
+constexpr double      kSolFloor   = 0.50;
+constexpr double      kSolCeil    = 1.00;
 
 void printControls() {
     std::cout << "controls:\n"
@@ -35,7 +38,8 @@ void printControls() {
               << "  s     toggle hand-likeness shape scoring\n"
               << "  a     toggle adaptive skin model (learned from face)\n"
               << "  [/]   lower/raise convexity-defect depth threshold\n"
-              << "  ,/.   lower/raise adaptive skin threshold (lower = picks up more hand)\n";
+              << "  ,/.   lower/raise adaptive skin threshold (lower = picks up more hand)\n"
+              << "  o/p   lower/raise fist-vs-palm solidity threshold\n";
 }
 
 }  // namespace
@@ -142,6 +146,16 @@ int main() {
                 kBpFloor, detector.backproj_threshold - kBpStep);
             std::cout << "backproj_threshold = "
                       << detector.backproj_threshold << "\n";
+        } else if (key == 'p' || key == 'P') {
+            classifier.open_solidity_max = std::min(
+                kSolCeil, classifier.open_solidity_max + kSolStep);
+            std::cout << "open_solidity_max = "
+                      << classifier.open_solidity_max << "\n";
+        } else if (key == 'o' || key == 'O') {
+            classifier.open_solidity_max = std::max(
+                kSolFloor, classifier.open_solidity_max - kSolStep);
+            std::cout << "open_solidity_max = "
+                      << classifier.open_solidity_max << "\n";
         }
     }
 

@@ -11,7 +11,8 @@
       "Bash(bash /Users/raymondtsai/Desktop/487-Final/gesture-demo/build.sh)",
       "Read(//opt/homebrew/**)",
       "Read(//usr/local/**)",
-      "Bash(cmake --build build)"
+      "Bash(cmake --build build)",
+      "Bash(cmake --build /Users/raymondtsai/Desktop/487-Final/build)"
     ]
   }
 }
