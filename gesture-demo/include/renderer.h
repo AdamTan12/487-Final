@@ -14,11 +14,14 @@ public:
     Renderer() = default;
 
     /// Draw the per-frame overlay in place on `frame`.
-    void draw(cv::Mat&            frame,
+    void draw(cv::Mat&               frame,
               const DetectionResult& det,
-              const std::string&  smoothed_label,
-              int                 finger_count,
-              double              fps);
+              const std::string&     smoothed_label,
+              int                    finger_count,
+              double                 fps,
+              bool                   face_mask_on,
+              bool                   shape_score_on,
+              bool                   adaptive_on);
 
     /// Returns `frame` side-by-side with the (BGR-promoted) skin mask.
     /// Useful for the `d` (debug) toggle in main.

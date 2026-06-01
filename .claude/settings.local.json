@@ -8,7 +8,9 @@
       "Bash(bash scripts/build.sh)",
       "Bash(/Users/raymondtsai/Desktop/487-Final/build/bin/gesture_recognition --help)",
       "Bash(git *)",
-      "Bash(bash /Users/raymondtsai/Desktop/487-Final/gesture-demo/build.sh)"
+      "Bash(bash /Users/raymondtsai/Desktop/487-Final/gesture-demo/build.sh)",
+      "Read(//opt/homebrew/**)",
+      "Read(//usr/local/**)"
     ]
   }
 }
