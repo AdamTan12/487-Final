@@ -24,13 +24,20 @@ constexpr double kFingertipMarginFactor = 1.0;
 constexpr std::size_t kMinHullPoints = 3;
 // ---------------------------------------------------------------------------
 
-constexpr std::array<const char*, 6> kLabelByFingerCount = {
-    "fist",   // 0
-    "point",  // 1
-    "peace",  // 2
-    "three",  // 3
-    "four",   // 4
-    "palm",   // 5
+/// Maps a finger count (0-5) to a gesture. NOTE: the convexity-defect trick
+/// reliably counts fingers but cannot tell apart same-count gestures on its
+/// own. Two cases need a secondary feature (Raymond's finetuning work):
+///   * count 1 -> Like vs Dislike: split by thumb direction relative to the
+///     contour centroid (up = Like, down = Dislike). Currently both report
+///     Like as a placeholder.
+/// All other counts map 1:1.
+constexpr std::array<Gesture, 6> kGestureByFingerCount = {
+    Gesture::Fist,   // 0
+    Gesture::Like,   // 1  (Dislike disambiguation TODO via centroid orientation)
+    Gesture::Peace,  // 2
+    Gesture::Three,  // 3
+    Gesture::Four,   // 4
+    Gesture::Palm,   // 5
 };
 
 /// Angle at point `far` formed by the triangle (`start`, `end`, `far`),
@@ -49,12 +56,12 @@ double angleAtFar(const cv::Point& start, const cv::Point& end, const cv::Point&
     return std::acos(cos_angle);
 }
 
-const char* labelFor(int finger_count) {
-    if (finger_count < 0) return "none";
-    if (finger_count >= static_cast<int>(kLabelByFingerCount.size())) {
-        return "palm";   // anything beyond our table reads as an open hand
+Gesture gestureFor(int finger_count) {
+    if (finger_count < 0) return Gesture::None;
+    if (finger_count >= static_cast<int>(kGestureByFingerCount.size())) {
+        return Gesture::Palm;   // anything beyond our table reads as an open hand
     }
-    return kLabelByFingerCount[static_cast<std::size_t>(finger_count)];
+    return kGestureByFingerCount[static_cast<std::size_t>(finger_count)];
 }
 
 }  // namespace
@@ -118,7 +125,7 @@ ClassificationResult ClassicalClassifier::classify(
     }
 
     result.finger_count = (gaps > 0) ? gaps + 1 : 0;
-    result.label        = labelFor(result.finger_count);
+    result.gesture      = gestureFor(result.finger_count);
     return result;
 }
 

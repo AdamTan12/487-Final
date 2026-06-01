@@ -10,7 +10,8 @@
       "Bash(git *)",
       "Bash(bash /Users/raymondtsai/Desktop/487-Final/gesture-demo/build.sh)",
       "Read(//opt/homebrew/**)",
-      "Read(//usr/local/**)"
+      "Read(//usr/local/**)",
+      "Bash(cmake --build build)"
     ]
   }
 }

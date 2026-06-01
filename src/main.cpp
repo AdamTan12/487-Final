@@ -1,6 +1,8 @@
 #include "camera.h"
 #include "classical_classifier.h"
 #include "classical_detector.h"
+#include "emoji_overlay.h"
+#include "gesture_types.h"
 #include "renderer.h"
 #include "smoother.h"
 
@@ -61,24 +63,33 @@ int main() {
 
         const gd::DetectionResult det = detector.detect(frame);
 
-        std::string raw_label    = "none";
+        gd::Gesture raw_gesture  = gd::Gesture::None;
         int         finger_count = 0;
         if (det.found) {
             const auto cls = classifier.classify(det.contour);
-            raw_label    = cls.label;
+            raw_gesture  = cls.gesture;
             finger_count = cls.finger_count;
         }
-        const std::string smoothed = smoother.update(raw_label);
+        const gd::SmoothResult smoothed = smoother.update(raw_gesture);
 
         const int64  now = cv::getTickCount();
         const double dt  = static_cast<double>(now - prev_tick) / tick_freq;
         prev_tick = now;
         const double fps = (dt > 0.0) ? 1.0 / dt : 0.0;
 
-        renderer.draw(frame, det, smoothed, finger_count, fps,
+        // Debug HUD (CV-side, owned here).
+        renderer.draw(frame, det, smoothed.gesture, finger_count, fps,
                       detector.use_face_mask,
                       detector.use_shape_score,
                       detector.use_adaptive_skin);
+
+        // Hand the per-frame decision to the display layer (teammate-owned).
+        gd::GestureEvent ev;
+        ev.gesture      = smoothed.gesture;
+        ev.stable       = smoothed.stable;
+        ev.bbox         = det.bbox;
+        ev.finger_count = finger_count;
+        gd::draw_gesture(frame, ev);
 
         cv::imshow(kWindowName,
                    debug_view ? renderer.debugView(frame, det) : frame);

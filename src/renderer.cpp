@@ -40,12 +40,13 @@ std::string fmt1(double v) {
 
 void Renderer::draw(cv::Mat&               frame,
                     const DetectionResult& det,
-                    const std::string&     smoothed_label,
+                    Gesture                smoothed_gesture,
                     int                    finger_count,
                     double                 fps,
                     bool                   face_mask_on,
                     bool                   shape_score_on,
                     bool                   adaptive_on) {
+    const std::string smoothed_label = gesture_name(smoothed_gesture);
     if (det.found) {
         cv::rectangle(frame, det.bbox, kBboxColor, 2);
         const std::vector<std::vector<cv::Point>> contours{det.contour};

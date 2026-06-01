@@ -1,15 +1,16 @@
 #pragma once
 
+#include "gesture_types.h"
+
 #include <opencv2/core.hpp>
 
-#include <string>
 #include <vector>
 
 namespace gd {
 
 struct ClassificationResult {
-    std::string label        = "none";
-    int         finger_count = 0;
+    Gesture gesture      = Gesture::None;
+    int     finger_count = 0;
 };
 
 /// Classical "classifier": counts extended fingers using the convexity-defect

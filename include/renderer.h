@@ -1,10 +1,9 @@
 #pragma once
 
 #include "classical_detector.h"
+#include "gesture_types.h"
 
 #include <opencv2/core.hpp>
-
-#include <string>
 
 namespace gd {
 
@@ -16,7 +15,7 @@ public:
     /// Draw the per-frame overlay in place on `frame`.
     void draw(cv::Mat&               frame,
               const DetectionResult& det,
-              const std::string&     smoothed_label,
+              Gesture                smoothed_gesture,
               int                    finger_count,
               double                 fps,
               bool                   face_mask_on,
