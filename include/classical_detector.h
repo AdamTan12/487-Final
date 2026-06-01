@@ -37,6 +37,11 @@ public:
     bool use_shape_score   = true;
     bool use_adaptive_skin = true;
 
+    /// Back-projection likelihood cutoff (0..255) for the adaptive skin model.
+    /// Lower = more permissive (picks up more of the hand, but also more
+    /// background). Live-tunable via , and . in the demo.
+    int  backproj_threshold = 35;
+
 private:
     cv::CascadeClassifier face_cascade_;
 
