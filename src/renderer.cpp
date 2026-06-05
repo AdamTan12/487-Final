@@ -27,6 +27,7 @@ constexpr int    kPanelHeight   = 175;
 
 const cv::Scalar kFaceBoxColor (0, 0, 255);    // red, debug view only
 
+/// Formats `v` to one decimal place for display in the status panel.
 std::string fmt1(double v) {
     std::ostringstream oss;
     oss.precision(1);

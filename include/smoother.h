@@ -6,20 +6,25 @@
 
 namespace gd {
 
+/// Output of Smoother::update() for a single frame.
 struct SmoothResult {
-    Gesture gesture = Gesture::None;
-    bool    stable  = false;  // winner holds a clear majority
+    Gesture gesture = Gesture::None; ///< Gesture with the highest vote count in the current window.
+    bool    stable  = false;         ///< True when the winner holds at least 60 % of the window.
 };
 
-// Majority vote over the last N gestures, to stop single frames from making
-// the output jump around.
+/// Temporal majority-vote filter over a sliding window of raw gesture frames.
+/// Prevents single-frame misclassifications from flickering through to the UI.
 class Smoother {
 public:
+    /// Constructs a smoother with a history window of `window` frames.
+    /// Passing 0 uses the default window size of 8.
     explicit Smoother(std::size_t window = 8);
 
-    // Feed one gesture per frame; get back the winner and whether it's settled.
+    /// Appends `gesture` to the history, drops the oldest entry if the window
+    /// is full, and returns the current winner with its stability flag.
     SmoothResult update(Gesture gesture);
 
+    /// Clears the history, resetting all state as if freshly constructed.
     void reset();
 
 private:

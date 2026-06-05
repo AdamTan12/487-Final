@@ -58,7 +58,8 @@ const std::array<const char*, 6> kCascadePaths = {
     "haarcascade_frontalface_default.xml",
 };
 
-// biggest rect by area, or empty if there are none
+/// Returns the largest rectangle in `rects` by area, or a default-constructed
+/// (empty) Rect if `rects` is empty. Used to pick the primary face for skin sampling.
 cv::Rect largestFace(const std::vector<cv::Rect>& rects) {
     cv::Rect best;
     int      best_area = 0;
@@ -71,8 +72,10 @@ cv::Rect largestFace(const std::vector<cv::Rect>& rects) {
     return best;
 }
 
-// middle of the face box, nudged up toward forehead/cheeks and away from the
-// jawline (shadows, facial hair). This is what we sample skin colour from.
+/// Computes a tight inner rectangle of `face` biased toward the forehead and
+/// cheeks. The patch is inset on all sides and shifted slightly upward to
+/// avoid the jawline, which contains shadows and facial hair that skew the
+/// skin histogram. The result is clamped to frame bounds.
 cv::Rect facePatch(const cv::Rect& face, const cv::Size& frame_size) {
     const int dx = static_cast<int>(face.width  * kFacePatchInsetFrac);
     const int dy = static_cast<int>(face.height * kFacePatchInsetFrac);

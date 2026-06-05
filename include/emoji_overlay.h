@@ -7,21 +7,24 @@
 namespace gd {
 
 // =============================================================================
-//  DISPLAY LAYER  (teammate-owned)
+//  DISPLAY LAYER
 //
-//  This is the entire surface the display side exposes to the rest of the app.
-//  The CV pipeline hands you a GestureEvent each frame; you draw the matching
-//  emoji onto `frame` in place. You own everything behind this function:
-//  loading emoji assets, the Gesture->asset table, placement, alpha-blending,
-//  fade-in on `stable`, etc. You never need to touch the CV code.
+//  Single entry point for the emoji overlay. The CV pipeline produces a
+//  GestureEvent each frame and passes it here; this function handles
+//  everything on the display side: asset loading, sizing, placement,
+//  alpha-blending, and the fade-in animation.
 //
-//  To develop in parallel, drive this with a mock producer (see the demo
-//  harness note in emoji_overlay.cpp) — you do not need the real detector to
-//  build and test the overlay.
+//  Emoji PNGs (72×72 BGRA Twemoji) live in assets/emoji/ relative to the
+//  working directory. They are loaded lazily on first use and cached.
+//  A missing PNG prints one warning and silently skips the overlay for that
+//  gesture; the function never throws.
 // =============================================================================
 
-/// Draw the emoji for `ev` onto `frame`, in place. A no-op if there is nothing
-/// worth showing (gesture None, or not yet stable — your call).
+/// Draws the emoji matching `ev.gesture` onto `frame` in place.
+/// The emoji is sized proportionally to `ev.bbox`, centred above the box, and
+/// eased in over several frames once `ev.stable` becomes true.
+/// No-ops when `ev.gesture` is None, `ev.stable` is false, or the frame is
+/// not a BGR 8-bit image.
 void draw_gesture(cv::Mat& frame, const GestureEvent& ev);
 
 }  // namespace gd

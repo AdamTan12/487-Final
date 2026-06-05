@@ -8,28 +8,38 @@
 
 namespace gd {
 
+/// Output of ClassicalClassifier::classify() for a single hand contour.
 struct ClassificationResult {
-    Gesture gesture      = Gesture::None;
-    int     finger_count = 0;
+    Gesture gesture      = Gesture::None; ///< Recognised gesture (or None if classification failed).
+    int     finger_count = 0;             ///< Number of extended fingers inferred from convexity defects.
 };
 
-// Counts extended fingers from the hand contour via convexity defects, then
-// maps the count to a Gesture. No model, just geometry.
+/// Geometry-only hand classifier — no trained model.
+///
+/// Counts inter-finger gaps (convexity defects) on the hand contour and maps
+/// the count to a Gesture enum value. The OK sign is a special case: it is
+/// detected as a topological hole (thumb+index loop) rather than by finger
+/// count, so `has_hole` must be passed from the detector.
 class ClassicalClassifier {
 public:
     ClassicalClassifier() = default;
 
-    // Safe to call on tiny or degenerate contours. `has_hole` (an enclosed
-    // gap, e.g. the OK loop) overrides the finger count when set.
+    /// Classifies a hand contour into a Gesture.
+    /// Safe to call on tiny or degenerate contours; returns Gesture::None in
+    /// those cases. When `has_hole` is true and solidity indicates an open
+    /// hand, the result is Gesture::Ok regardless of finger count.
     ClassificationResult classify(const std::vector<cv::Point>& contour,
                                   bool has_hole = false);
 
-    // Min defect depth (px) for a gap to count as one between fingers.
-    // Higher rejects knuckle/thumb wrinkles. Tune live with [ and ].
+    /// Minimum convexity-defect depth (pixels) for a gap to count as a space
+    /// between two fingers. Increase to reject knuckle/thumb-base wrinkles.
+    /// Tunable at runtime with the [ and ] keys.
     double defect_depth_min = 20.0;
 
-    // When the finger count is ambiguous (0-1), split fist from open palm by
-    // solidity: below this is an open hand, above it is a fist. Tune with o/p.
+    /// Solidity threshold used to disambiguate a fist from an open palm when
+    /// the finger count is 0 or 1. Contours with solidity below this value are
+    /// classified as Palm; at or above it as Fist.
+    /// Tunable at runtime with the o and p keys.
     double open_solidity_max = 0.85;
 };
 

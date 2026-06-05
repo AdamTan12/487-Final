@@ -59,7 +59,9 @@ constexpr int   kFadeFrames         = 5;      ///< 0..5; controls ease-on
 
 // ---- asset cache ----------------------------------------------------------
 
-/// Lazy-loaded BGRA emoji table. Empty Mat = "tried to load, failed".
+/// Returns a reference to the cached BGRA image for gesture `g`, loading it
+/// from disk on first access. Returns an empty Mat if the PNG is missing or
+/// not 4-channel; a warning is printed once per missing asset.
 cv::Mat& assetFor(Gesture g) {
     static std::unordered_map<int, cv::Mat>  cache;
     static std::unordered_map<int, bool>     warned;
@@ -91,8 +93,9 @@ cv::Mat& assetFor(Gesture g) {
 
 // ---- alpha blending -------------------------------------------------------
 
-/// Center the emoji square horizontally on the bbox and place it above the
-/// bbox. If that would clip the top of the frame, push it down inside.
+/// Computes the placement rect for a square emoji of side `size` centred
+/// horizontally over `bbox` and positioned just above it. If the natural
+/// position would clip outside the frame, the rect is clamped inward.
 cv::Rect placeAboveBbox(const cv::Rect& bbox, int size, const cv::Size& frame) {
     int x = bbox.x + bbox.width / 2 - size / 2;
     int y = bbox.y - kGapAboveBbox - size;
@@ -101,14 +104,12 @@ cv::Rect placeAboveBbox(const cv::Rect& bbox, int size, const cv::Size& frame) {
     return cv::Rect(x, y, size, size);
 }
 
-/// Blend a BGRA source onto a BGR frame, in place. `global_alpha` in [0, 1]
-/// is multiplied with the PNG's per-pixel alpha (used for fade-in).
-///
-/// Linear blend per channel: out = src*a + dst*(1-a), with
-///   a = src_alpha/255 * global_alpha
-///
-/// The dst ROI and src must be the same size; the caller does the resize and
-/// the placement clamp.
+/// Alpha-blends a BGRA source image onto a BGR frame ROI in place.
+/// `global_alpha` (0–1) is multiplied with each pixel's own alpha channel,
+/// allowing the caller to control overall opacity independently of the PNG
+/// transparency (used for the fade-in animation).
+/// Per-pixel blend: out = src * a + dst * (1 − a),  where a = src_alpha/255 * global_alpha.
+/// Caller must ensure frame_roi and bgra are the same size.
 void alphaBlend(cv::Mat& frame_roi, const cv::Mat& bgra, float global_alpha) {
     CV_Assert(frame_roi.type() == CV_8UC3);
     CV_Assert(bgra.type()      == CV_8UC4);
@@ -134,13 +135,14 @@ void alphaBlend(cv::Mat& frame_roi, const cv::Mat& bgra, float global_alpha) {
 
 // ---- fade state -----------------------------------------------------------
 
-/// Tracks "how many consecutive frames have we been stable on this gesture?"
-/// Reset whenever the gesture changes or stops being stable.
+/// Tracks consecutive stable frames for the current gesture to drive fade-in.
+/// Resets whenever the gesture changes or stability is lost.
 struct FadeState {
     Gesture last  = Gesture::None;
     int     count = 0;
 };
 
+/// Returns a reference to the process-lifetime FadeState singleton.
 FadeState& fadeState() {
     static FadeState s;
     return s;

@@ -2,12 +2,13 @@
 
 #include <opencv2/core.hpp>
 
-// Types shared between the CV side and the display side. This is the only
-// header both sides include to talk to each other, so keep it small.
+// Shared contract between the CV pipeline and the display layer.
+// This is the only header both sides include, so keep it minimal.
 
 namespace gd {
 
-// What we recognize. To add one: a value here + an emoji on the display side.
+/// All gesture classes the pipeline can recognise.
+/// To add a new gesture: append a value here and provide a matching emoji asset.
 enum class Gesture {
     None,
     Fist,     // 0 fingers
@@ -15,18 +16,19 @@ enum class Gesture {
     Three,    // 3 fingers
     Four,     // 4 fingers
     Palm,     // 5 fingers
-    Ok,       // thumb+index loop (detected as a hole, not by count)
+    Ok,       // thumb+index loop (detected as a hole, not by finger count)
 };
 
-// One frame's result, handed across to draw_gesture().
+/// Per-frame result passed from the CV pipeline to draw_gesture().
 struct GestureEvent {
-    Gesture  gesture      = Gesture::None;
-    bool     stable       = false;          // survived smoothing
-    cv::Rect bbox;                          // where to draw the emoji
-    int      finger_count = 0;              // debug only
+    Gesture  gesture      = Gesture::None; ///< Smoothed gesture for this frame.
+    bool     stable       = false;         ///< True once the gesture holds a clear majority in the smoother window.
+    cv::Rect bbox;                         ///< Bounding box of the detected hand, used to position the emoji.
+    int      finger_count = 0;             ///< Raw finger count from the classifier (debug display only).
 };
 
-// Name for logs / the debug HUD. Not the emoji.
+/// Returns a human-readable name for `g`, used in the debug HUD and logs.
+/// Returns "none" for any unrecognised value.
 inline const char* gesture_name(Gesture g) {
     switch (g) {
         case Gesture::None:    return "none";

@@ -8,6 +8,9 @@ namespace gd {
 
 namespace {
 
+/// Returns the best cv::VideoCapture backend for the current platform.
+/// Prefer native APIs over the generic fallback to avoid capture delays and
+/// permission issues (e.g. AVFoundation is required for macOS camera access).
 int pickBackend() {
 #if defined(__APPLE__)
     return cv::CAP_AVFOUNDATION;

@@ -28,6 +28,7 @@ constexpr double      kSolStep    = 0.02;
 constexpr double      kSolFloor   = 0.50;
 constexpr double      kSolCeil    = 1.00;
 
+/// Prints the keyboard shortcut reference to stdout on startup.
 void printControls() {
     std::cout << "controls:\n"
               << "  ESC   quit\n"
@@ -44,6 +45,10 @@ void printControls() {
 
 }  // namespace
 
+/// Application entry point.
+/// Opens the default camera, runs the detect → classify → smooth → render
+/// pipeline on every frame, and handles keyboard input to toggle detector
+/// and classifier parameters at runtime.
 int main() {
     gd::Camera camera;
     if (!camera.isOpen()) {

@@ -32,7 +32,9 @@ constexpr std::array<Gesture, 6> kGestureByFingerCount = {
     Gesture::Palm,   // 5
 };
 
-// Angle at `far` in the triangle (start, end, far), via law of cosines.
+/// Computes the angle at vertex `far` in the triangle formed by (start, end, far)
+/// using the law of cosines. Returns infinity for degenerate triangles so the
+/// caller can skip them without special-casing NaN.
 double angleAtFar(const cv::Point& start, const cv::Point& end, const cv::Point& far) {
     const double a = cv::norm(start - end);
     const double b = cv::norm(far   - start);
@@ -47,6 +49,8 @@ double angleAtFar(const cv::Point& start, const cv::Point& end, const cv::Point&
     return std::acos(cos_angle);
 }
 
+/// Maps a finger count to the corresponding Gesture value.
+/// Counts beyond 5 are clamped to Palm; negative counts return None.
 Gesture gestureFor(int finger_count) {
     if (finger_count < 0) return Gesture::None;
     if (finger_count >= static_cast<int>(kGestureByFingerCount.size())) {
