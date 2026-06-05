@@ -23,8 +23,8 @@ public:
     void reset();
 
 private:
-    std::size_t          window_;
-    std::deque<Gesture>  history_;
+    std::size_t window_;
+    std::deque<Gesture> history_;
 };
 
 }  // namespace gd
