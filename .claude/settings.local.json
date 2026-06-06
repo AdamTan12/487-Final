@@ -12,7 +12,9 @@
       "Read(//opt/homebrew/**)",
       "Read(//usr/local/**)",
       "Bash(cmake --build build)",
-      "Bash(cmake --build /Users/raymondtsai/Desktop/487-Final/build)"
+      "Bash(cmake --build /Users/raymondtsai/Desktop/487-Final/build)",
+      "Bash(grep -iE \"build/|CMakeCache|CMakeFiles|\\\\.o$|\\\\.obj$|\\\\.exe$|\\\\.dll$|\\\\.dylib$|\\\\.DS_Store|\\\\.vs/|CMakeSettings\")",
+      "Bash(bash -n run.sh)"
     ]
   }
 }

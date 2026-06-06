@@ -9,6 +9,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <algorithm>
 #include <iostream>
 
 namespace {
