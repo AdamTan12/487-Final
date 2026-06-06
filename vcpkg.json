@@ -1,0 +1,8 @@
+{
+  "name": "gesture-demo",
+  "version": "0.1.0",
+  "description": "Real-time hand gesture recognition demo (classical OpenCV).",
+  "dependencies": [
+    "opencv4"
+  ]
+}
