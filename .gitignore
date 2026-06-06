@@ -51,3 +51,18 @@ Desktop.ini
 # Test outputs (results.csv lives here at runtime)
 tests/results.csv
 tests/test_images/
+
+# vcpkg clone and per-project installs
+vcpkg/
+vcpkg_installed/
+
+# build output
+out/
+build/
+
+# Visual Studio cache
+.vs/
+
+# CMake user settings with absolute paths
+CMakeUserPresets.json
+CMakeSettings.json
