@@ -17,6 +17,12 @@ if not defined OCV (
 
 if not exist build mkdir build
 
+rem Clear any stale CMake cache so the toolchain / OpenCV_DIR always takes
+rem effect (these can only be set on a fresh configure). Keeps vcpkg_installed
+rem so OpenCV is not rebuilt.
+if exist build\CMakeCache.txt del /q build\CMakeCache.txt
+if exist build\CMakeFiles rmdir /s /q build\CMakeFiles
+
 if defined OCV (
   echo Found existing OpenCV at: !OCV!
   cd build
